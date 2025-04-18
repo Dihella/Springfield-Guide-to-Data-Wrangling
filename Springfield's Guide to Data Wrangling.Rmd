@@ -1,0 +1,161 @@
+---
+title: "Donuts, D'oh, and... Homer?"
+author: Dihella Ikapitte
+date: April 11th, 2025
+output:
+  html_document:
+    df_print: paged
+    theme: flatly
+    code_folding: hide 
+    toc: true
+    toc_float: true
+    code_download: true
+---
+
+# Introduction
+
+Welcome to data wrangling! What is data wrangling? Data wrangling is a way to prepare messy data to make it easier for you and others to read and work with. It involves: 
+
+-    Combining different data sets into one data set to help analyze both together
+-    Fixing missing or empty parts in your data set
+-    Dealing with strange bits of data and figuring out how to explain and analyze it better
+
+So first, let's load in the data packages that we need:
+
+```{r warning = FALSE, message = FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+```
+
+## Tidyverse 
+
+-    The tidyverse package is a collection of packages that provides the user many functions to help with transforming and manipulating data, it includes ggplot2 (useful for data visualization by providing the codes to create graphs and charts), stringr, and more.
+
+## Dplyr
+
+-    The dplyr package is a tool that helps with data manipulation. The functions help a R code user to filter, arrange, mutate, and select columns and rows in datasets to help analyze the data and make it clear to people. 
+
+The functions from dplyr that we will be using in this tutorial are:
+
+-    *filter()*
+-    *select()*
+-    *arrange()*
+-    *distinct()*
+-    *rename()*
+
+## Ggplot2
+
+-    The ggplot2 package a package that is used to create data visualization to describe variables and their relationship between others It can be used to create graphs and plots. We will be using geom_hisotgram for a question later in the tutorial.
+
+
+## Introduction to the Simpsons Episode dataset 
+
+[Simpsons Dataset](https://www.kaggle.com/datasets/prashant111/the-simpsons-dataset?resource=download)
+
+The Simpsons is popular animated sitcom depicting an American family called the Simpsons with Homer, Marge, Bart, Lisa, and Maggie living in a town called Springfield. The creator of this Simpsons dataset package is Tod Schenider in and it was originally from GitHub, but later was uploaded by a Kaggle user, William Cukierski, to Kaggle. The package contains every character, location, episodes, and lines from many scripts from the popular tv show, but for this tutorial, I will only be using the episode dataset.
+
+
+So, let's make the simpsons_episodes table into a data frame by using read.csv, which reads a file that is in a table format and creates a data frame from it, so we can use it successfully use the data set later.
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+simpsons_df <- read_csv("Data/simpsons_episodes.csv")
+```
+
+
+## Exploring the data set
+
+First, let's explore this data set by using colnames() to see what columns are in our data set
+```{r}
+colnames(simpsons_df)
+```
+
+Using colnames(), we see the names and how many columns there are in the data set. As we can see there are 14 columns in the data set, so let's see what a few of these column represents, and to use as examples later in the tutorial. We have: 
+
+-    *number_in_series*: 
+-    *season*: 
+-    *imdb_rating*:
+-    *us_viewers_in_millions*:
+-    *original_air_year*: 
+
+## Filter()
+
+The filter() function is used to find and retain rows and columns that have something similar, so let's filter the column imdb_rating to see which episodes are higher than 7.5
+```{r}
+imdb_rating_above_7.5 <- simpsons_df |>
+  filter(imdb_rating > 7.5)
+head(imdb_rating_above_7.5)
+```
+
+You can see that the head() function, which is not apart of the dplyr package, is used to only show a few columns of the imdb_rating_above_7.5 results. From using filter(), we can see all every episode that has a imdb_rating than 7.5 and over 224 episodes have a rating higher than 7.5. Let's keep going through the imdb_rating and let's make a histogram to see how episodes share the same rating and see how the episodes range from 7.5 to 10.0 in the imdb_rating column.
+
+## Histogram
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+episodes_above_7.5 <- subset(simpsons_df, imdb_rating > 7.5)
+ggplot(episodes_above_7.5, aes(x = imdb_rating)) +
+  geom_histogram(fill = "skyblue") +
+  labs(
+    title = "IMDb Ratings above 7.5 Through Time",
+    x = "IMDb Rating",
+    y = "Number of Episodes"
+  )
+```
+From this histogram, we can see that close to 30, maybe 28 episodes that are above the imdb_rating of 7.5 have the rating of 8.3, while 2 episodes are above the rating of 9.0. 
+
+## Select()
+
+The select() function helps choose which columns of the data frame that I would like to work with. Let's select the imdb_votes column and work with this.
+```{r}
+simpsons_df |>
+  select(imdb_votes)
+```
+Using select(), we now have the entire imdb_votes column by itself, and we can see all the values in the column as we scroll through.
+
+## Rename()
+
+After using the select() function, we have the entire column of imdb_votes. Now, let's rename this to imdb_user_votes. The rename() function changes the names of variables.
+```{r}
+simpsons_df |>
+  rename(imdb_user_votes = imdb_votes)
+```
+As we go through the data set, we can see now that imdb_votes is now renamed as imdb_user_votes.
+
+## Arrange() and Distinct()
+
+The arrange() function sorts the rows of the data frame by their values. Let's use the distinct() function and the arrange() function to put choose the title column and arrange it from descending order. The distinct() function selects unique rows from a data frame.
+```{r}
+simpsons_df |>
+  distinct(title) |>
+  arrange(desc(title))
+```
+
+## Exercises
+
+Here are two exercises for you to do to understand these functions more.
+
+Find episodes that are from seasons 1 to 4 and have an imdb_rating that is above 8.0. Show the title of the episode, the season, and the imdb rating of the episode.
+
+Hint: You will need to use the filter() and select() functions.
+```{r}
+simpsons_df |>
+  filter(season < 5, imdb_rating > 8.0) |>
+  select(title, season, imdb_rating)
+```
+
+Rename the imdb_rating column to online_rating, then arrange them from highest to lowest rated. Only show the online_rating column
+
+Hint: You'll need to use the rename() and arrange() functions.
+```{r}
+highest_rated_epiosdes <- simpsons_df |>
+  rename(online_rating = imdb_rating) |>
+  arrange(desc(online_rating)) |>
+  select(online_rating)
+head(highest_rated_epiosdes)
+```
+
+
+## Conclusion
+
+R code is an interesting language for statistics and can be quite easy once you get the hang of it. The dplyr package is one of your best friends when learning R. From arrange(), select(), rename() and many more, you can learn more on how to successfully manipulate more data sets that you might come across. And if you're interested/taking any data science class that uses R, it is a big help. 
+
+
